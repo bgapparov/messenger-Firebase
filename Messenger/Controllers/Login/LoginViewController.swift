@@ -115,6 +115,10 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func loginButtonTapped() {
+        
+        emailField.resignFirstResponder()
+        passwordField.resignFirstResponder()
+        
         guard let email = emailField.text, let passord = passwordField.text,
             !email.isEmpty, !passord.isEmpty, passord.count >= 6 else {
                 alertUserLoginError()

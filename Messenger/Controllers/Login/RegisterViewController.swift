@@ -18,9 +18,40 @@ class RegisterViewController: UIViewController {
     
     private let imageview: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "logo")
+        imageView.image = UIImage(systemName: "person")
+        imageView.tintColor = .gray
         imageView.contentMode = .scaleAspectFit
         return imageView
+    }()
+    
+    private let firstNameField: UITextField = {
+        let textField = UITextField()
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
+        textField.returnKeyType = .continue
+        textField.layer.cornerRadius = 12
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.lightGray.cgColor
+        textField.placeholder = "First Name..."
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
+        textField.leftViewMode = .always
+        textField.backgroundColor = .white
+        return textField
+    }()
+    
+    private let lastNameField: UITextField = {
+        let textField = UITextField()
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
+        textField.returnKeyType = .continue
+        textField.layer.cornerRadius = 12
+        textField.layer.borderWidth = 1
+        textField.layer.borderColor = UIColor.lightGray.cgColor
+        textField.placeholder = "Last Name..."
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 5, height: 0))
+        textField.leftViewMode = .always
+        textField.backgroundColor = .white
+        return textField
     }()
     
     private let emailField: UITextField = {
@@ -54,10 +85,10 @@ class RegisterViewController: UIViewController {
         return textField
     }()
     
-    private let loginButton: UIButton = {
+    private let registerButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Log in", for: .normal)
-        button.backgroundColor = .link
+        button.setTitle("Register", for: .normal)
+        button.backgroundColor = .systemGreen
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 12
         button.layer.masksToBounds = true
@@ -76,8 +107,8 @@ class RegisterViewController: UIViewController {
                                                             target: self,
                                                             action: #selector(didTapRegister))
         
-        loginButton.addTarget(self,
-                              action:#selector(loginButtonTapped),
+        registerButton.addTarget(self,
+                              action:#selector(registerButtonTapped),
                               for: .touchUpInside)
         
         emailField.delegate = self
@@ -86,9 +117,24 @@ class RegisterViewController: UIViewController {
         //Add Subviews
         view.addSubview(scrollView)
         scrollView.addSubview(imageview)
+        scrollView.addSubview(firstNameField)
+        scrollView.addSubview(lastNameField)
         scrollView.addSubview(emailField)
         scrollView.addSubview(passwordField)
-        scrollView.addSubview(loginButton)
+        scrollView.addSubview(registerButton)
+        
+        imageview.isUserInteractionEnabled = true
+        scrollView.isUserInteractionEnabled = true
+        
+        let gesture = UITapGestureRecognizer(target: self,
+                                             action: #selector(didTapchangeProfilePic))
+        gesture.numberOfTouchesRequired = 1
+        gesture.numberOfTapsRequired = 1
+        imageview.addGestureRecognizer(gesture)
+    }
+    
+    @objc private func didTapchangeProfilePic() {
+        print("call button")
     }
     
     override func viewDidLayoutSubviews() {
@@ -99,24 +145,45 @@ class RegisterViewController: UIViewController {
                                  y: 20,
                                  width: size,
                                  height: size)
-        emailField.frame = CGRect(x: 30,
+        firstNameField.frame = CGRect(x: 30,
                                   y: imageview.bottom+10,
+                                  width: scrollView.width-60,
+                                  height: 52)
+        lastNameField.frame = CGRect(x: 30,
+                                  y: firstNameField.bottom+10,
+                                  width: scrollView.width-60,
+                                  height: 52)
+        emailField.frame = CGRect(x: 30,
+                                  y: lastNameField.bottom+10,
                                   width: scrollView.width-60,
                                   height: 52)
         passwordField.frame = CGRect(x: 30,
                                      y: emailField.bottom + 10,
                                      width: scrollView.width-60,
                                      height: 52)
-        loginButton.frame = CGRect(x: 30,
+        registerButton.frame = CGRect(x: 30,
                                    y: passwordField.bottom + 10,
                                    width: scrollView.width-60,
                                    height: 52)
         
     }
     
-    @objc private func loginButtonTapped() {
-        guard let email = emailField.text, let passord = passwordField.text,
-            !email.isEmpty, !passord.isEmpty, passord.count >= 6 else {
+    @objc private func registerButtonTapped() {
+        
+        emailField.resignFirstResponder()
+        passwordField.resignFirstResponder()
+        firstNameField.resignFirstResponder()
+        lastNameField.resignFirstResponder()
+        
+        guard let firstName = firstNameField.text,
+            let lastName = lastNameField.text,
+            let email = emailField.text,
+            let passord = passwordField.text,
+            !email.isEmpty,
+            !passord.isEmpty,
+            !firstName.isEmpty,
+            !lastName.isEmpty,
+            passord.count >= 6 else {
                 alertUserLoginError()
                 return
         }
@@ -126,7 +193,7 @@ class RegisterViewController: UIViewController {
     
     func alertUserLoginError() {
         let alert = UIAlertController(title: "Woops!",
-                                      message: "Please enter all information to log in!",
+                                      message: "Please enter all information to create a new account!",
                                       preferredStyle: .alert)
         
         alert.addAction(UIAlertAction(title: "Dismess",
@@ -150,7 +217,7 @@ extension RegisterViewController: UITextFieldDelegate {
         if textField == emailField {
             passwordField.becomeFirstResponder()
         }else {
-            loginButtonTapped()
+            registerButtonTapped()
         }
         
         return true
